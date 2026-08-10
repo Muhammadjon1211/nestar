@@ -1,0 +1,21 @@
+export enum Message {
+  SOMETHING__WENT_WRONG = 'Something wend wrong!',
+  NOT_DATA_FOUND = "No data found!",
+  CREATE_FAILED = "Create failed!",
+  UPDATE_FAILED = "Update failed!",
+  REMOVE_FAILED = "Remove failed!",
+  UPLOAD_FAILED = "Upload failed!",
+  BAD_REQUEST = "Bad Request",
+
+  NO_MEMBER_NICK = "No member with that nickname!",
+  USED_NICK_PHONE = "You are inserting already used phone number!",
+  WRONG_PASSWORD = "Wrong password, try again!",
+  NOT_AUTHENTIFICATED = "You are not authentificated, Please login first!",
+  BLOCKED_USER = "You have been blocked! Contact Restaurant",
+  TOKEN_CREATION_FAILED = "Token createion error!",
+  TOKEN_NOT_EXIST = "Bearer Token is not provided!",
+  ONLY_SPECEFIC_ROLES_ALLOWED = "Allowed only for members with specific roles!",
+  NOT_ALLOWED_REQUEST = "Not Allowed Request!",
+  PROVIDE_ALLOWED_FORMAT = "Please provide jpg, png, or jpeg images!",
+  SELF_SUBSCRIPTION_DENIED = "Self subscription is denied!",
+}
