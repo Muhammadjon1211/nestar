@@ -10,8 +10,9 @@ import { DatabaseModule } from './database/database.module';
 
 
 @Module({
-  imports: [ConfigModule.forRoot(), GraphQLModule.forRoot<ApolloDriverConfig>(
-    {
+  imports: [
+    ConfigModule.forRoot(),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: true,
       autoSchemaFile: true,
