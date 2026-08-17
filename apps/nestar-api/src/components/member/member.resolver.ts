@@ -21,11 +21,16 @@ export class MemberResolver {
     }
   }
 
-  @Mutation(() => String) // POST
+  @Mutation(() => Member) // POST
   @UsePipes(ValidationPipe)
-  public async login(@Args('input') input: LoginInput): Promise<string> {
-    console.log("Mutation: login");
-    return this.memberService.login();
+  public async login(@Args('input') input: LoginInput): Promise<Member> {
+    try {
+      console.log("Mutation: login");
+      return this.memberService.login(input);
+    } catch (err) {
+      console.log("Error, login", err);
+      throw new InternalServerErrorException(err);
+    }
   }
 
   @Mutation(() => String) // POST
