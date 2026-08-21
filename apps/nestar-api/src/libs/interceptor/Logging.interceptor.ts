@@ -29,6 +29,8 @@ export class LoggingInterceptor implements NestInterceptor {
         }),
       );//response
     }
+
+    return next.handle();
   }
 
   private stringify(context: ExecutionContext): string {
