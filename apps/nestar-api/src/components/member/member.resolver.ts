@@ -11,7 +11,6 @@ export class MemberResolver {
   @Mutation(() => Member) // POST
   public async signup(@Args('input') input: MemberInput): Promise<Member> {
     console.log("Mutation: signup");
-    console.log(input);
     return this.memberService.signup(input);
   }
 

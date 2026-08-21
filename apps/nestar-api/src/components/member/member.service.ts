@@ -15,7 +15,7 @@ export class MemberService {
     input.memberPassword = await this.authService.hashPassword(input.memberPassword);
     try {
       const result = await this.memberModel.create(input); // schemani olib beradi
-      //TODO Authentification via TOKENS
+      result.accessToken = await this.authService.createToken(result)
       return result;
     } catch (err) {
       console.log("Error, Service.model", err)
@@ -39,7 +39,8 @@ export class MemberService {
     //TODO compare user and backend passwords
     if (!response.memberPassword) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
     const isMatch = await this.authService.comparePasswords(input.memberPassword, response.memberPassword); // 34 minuta
-    if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD)
+    if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+    response.accessToken = await this.authService.createToken(response)
 
     return response;
   }
