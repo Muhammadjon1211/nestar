@@ -9,6 +9,8 @@ import * as mongoose from 'mongoose';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { MemberUpdate } from '../../libs/dto/member/member.update';
+import * as mongoose_1 from 'mongoose';
 
 @Resolver()
 export class MemberResolver {
@@ -26,15 +28,6 @@ export class MemberResolver {
     return this.memberService.login(input);
   }
 
-
-  // Authentificated users
-  @UseGuards(AuthGuard)
-  @Mutation(() => String) // POST
-  public async updateMember(@AuthMember("_id") memberId: mongoose.ObjectId): Promise<string> {
-    console.log("Mutation: updateMember");
-    return this.memberService.updateMember();
-  }
-
   @UseGuards(AuthGuard)
   @Query(() => String) // POST
   public async checkAuth(@AuthMember("memberNick") memberNick: string): Promise<string> {
@@ -50,6 +43,22 @@ export class MemberResolver {
     console.log("Query: checkAuthRoles");
     return `Hi ${authMember.memberNick}, you are ${authMember.memberType} (memberId: ${authMember._id})`
   }
+
+  // Authentificated users
+  @UseGuards(AuthGuard)
+  @Mutation(() => Member) // POST
+  public async updateMember(
+    @Args("input") input: MemberUpdate,
+    //@ts-ignore
+    @AuthMember("_id") memberId: ObjectId
+  ): Promise<Member> {
+    console.log("Mutation: updateMember");
+    //@ts-ignore
+    delete input._id;
+    //@ts-ignore
+    return this.memberService.updateMember(memberId, input);
+  }
+
 
   @Query(() => String) // GET
   public async getMember(): Promise<string> {
