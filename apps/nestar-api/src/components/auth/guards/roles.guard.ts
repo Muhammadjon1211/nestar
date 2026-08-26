@@ -1,4 +1,4 @@
-import { BadRequestException, CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, CanActivate, ExecutionContext, Injectable, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '../auth.service';
 import { Message } from 'apps/nestar-api/src/libs/enums/common.enum';
@@ -21,8 +21,15 @@ export class RolesGuard implements CanActivate {
 			const bearerToken = request.headers.authorization;
 			if (!bearerToken) throw new BadRequestException(Message.TOKEN_NOT_EXIST);
 
-			const token = bearerToken.split(' ')[1];
-			const authMember = await this.authService.verifyToken(token);
+			const [type, token] = bearerToken.split(' ');
+			if (type !== 'Bearer' || !token) throw new BadRequestException(Message.TOKEN_NOT_EXIST);
+
+			let authMember;
+			try {
+				authMember = await this.authService.verifyToken(token);
+			} catch (err) {
+				throw new UnauthorizedException(Message.NOT_AUTHENTICATED);
+			}
 
 			if (!authMember?.memberType) {
 				throw new ForbiddenException(Message.ONLY_SPECIFIC_ROLES_ALLOWED);
