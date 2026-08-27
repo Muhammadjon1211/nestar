@@ -18,8 +18,8 @@ export class MemberService {
     private viewService: ViewService) { }
 
   public async signup(input: MemberInput): Promise<Member> {
-    input.memberPassword = await this.authService.hashPassword(input.memberPassword);
     try {
+      input.memberPassword = await this.authService.hashPassword(input.memberPassword);
       const result = await this.memberModel.create(input); // schemani olib beradi
       result.accessToken = await this.authService.createToken(result)
       return result;
