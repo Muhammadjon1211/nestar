@@ -10,7 +10,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update'
-import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
+import { getSerialForImage, isValidImage, shapeIntoMongoObjectId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
@@ -104,14 +104,16 @@ export class MemberResolver {
   @Mutation((returns) => String)
   public async imageUploader(
     @Args({ name: 'file', type: () => GraphQLUpload })
-    { createReadStream, filename, mimetype }: FileUpload,
+    file: Promise<FileUpload> | FileUpload,
     @Args('target') target: String,
   ): Promise<string> {
     console.log('Mutation: imageUploader');
 
+    const { createReadStream, filename, mimetype } = await file;
+    console.log('upload:', { filename, mimetype });
+
     if (!filename) throw new Error(Message.UPLOAD_FAILED);
-    const validMime = validMimeTypes.includes(mimetype);
-    if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+    if (!isValidImage(filename, mimetype)) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
 
     const imageName = getSerialForImage(filename);
     const url = `uploads/${target}/${imageName}`;
@@ -124,7 +126,7 @@ export class MemberResolver {
         .on('error', () => reject(false));
     });
     if (!result) throw new Error(Message.UPLOAD_FAILED);
-
+    console.log({ filename, mimetype })
     return url;
   }
 
@@ -141,9 +143,10 @@ export class MemberResolver {
     const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<Promise<void>> => {
       try {
         const { filename, mimetype, encoding, createReadStream } = await img;
+        console.log('upload:', { filename, mimetype });
 
-        const validMime = validMimeTypes.includes(mimetype);
-        if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+        if (!filename) throw new Error(Message.UPLOAD_FAILED);
+        if (!isValidImage(filename, mimetype)) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
 
         const imageName = getSerialForImage(filename);
         const url = `uploads/${target}/${imageName}`;
@@ -159,7 +162,7 @@ export class MemberResolver {
         //@ts-ignore
         uploadedImages[index] = url;
       } catch (err) {
-        console.log('Error, file missing!');
+        console.log('Error, file missing!', err);
       }
     });
 

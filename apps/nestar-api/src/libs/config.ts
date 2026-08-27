@@ -7,6 +7,18 @@ export const availableMemberSorts = ["createdAt", "updatedAt", "memberLikes", "m
 
 // IMAGE CONFIGURATION
 export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+export const validImageExtensions = ['.png', '.jpg', '.jpeg'];
+
+export const isValidImage = (filename: string, mimetype?: string): boolean => {
+  // Some clients (Postman, Altair, curl) send "application/octet-stream" or an empty
+  // content-type for the file part, so fall back to the file extension.
+  const mime = (mimetype ?? '').split(';')[0].trim().toLowerCase();
+  if (validMimeTypes.includes(mime)) return true;
+
+  const ext = path.parse(filename ?? '').ext.toLowerCase();
+  return validImageExtensions.includes(ext);
+};
+
 export const getSerialForImage = (filename: string) => {
   const ext = path.parse(filename).ext;
   return uuidv4() + ext;
