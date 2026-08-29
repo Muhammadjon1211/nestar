@@ -1,7 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
-import { availableAgentSorts, availableMemberSorts } from '../../config';
+import { availableAgentSorts, availableMemberSorts, availableOptions, availablePropertySorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
 import { PropertyLocation, PropertyType } from '../../enums/property.enum';
 
@@ -68,6 +68,104 @@ export class PropertyInput {
   @IsOptional()
   @Field(() => Date, { nullable: true })
   constructedAt?: Date;
+}
+
+@InputType()
+export class PricesRange {
+  @Field(() => Int)
+  start: number;
+
+  @Field(() => Int)
+  end: number;
+}
+
+@InputType()
+export class SquaresRange {
+  @Field(() => Int)
+  start: number;
+
+  @Field(() => Int)
+  end: number;
+}
+
+@InputType()
+export class PeriodsRange {
+  @Field(() => Date)
+  start: Date;
+
+  @Field(() => Date)
+  end: Date;
+}
+
+@InputType()
+class PISearch {
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  //@ts-ignore
+  memberId?: ObjectId;
+
+  @IsOptional()
+  @Field(() => [PropertyLocation], { nullable: true })
+  locationList?: PropertyLocation[];
+
+  @IsOptional()
+  @Field(() => [PropertyType], { nullable: true })
+  typeList?: PropertyType[];
+
+  @IsOptional()
+  @Field(() => [Int], { nullable: true })
+  roomsList?: Number[];
+
+  @IsOptional()
+  @Field(() => [Int], { nullable: true })
+  bedsList?: Number[];
+
+  @IsOptional()
+  @IsIn(availableOptions, { each: true })
+  @Field(() => [String], { nullable: true })
+  options?: string[];
+
+  @IsOptional()
+  @Field(() => PricesRange, { nullable: true })
+  pricesRange?: PricesRange;
+
+  @IsOptional()
+  @Field(() => PeriodsRange, { nullable: true })
+  periodsRange?: PeriodsRange;
+
+  @IsOptional()
+  @Field(() => SquaresRange, { nullable: true })
+  squaresRange?: SquaresRange;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  text?: string;
+}
+
+@InputType()
+export class PropertiesInquiry {
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  page: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  limit: number;
+
+  @IsOptional()
+  @IsIn(availablePropertySorts)
+  @Field(() => String, { nullable: true })
+  sort?: string;
+
+  @IsOptional()
+  @Field(() => Direction, { nullable: true })
+  direction?: string;
+
+  @IsNotEmpty()
+  @Field(() => PISearch)
+  search: PISearch;
 }
 
 
