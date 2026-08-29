@@ -1,14 +1,20 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Property } from '../../libs/dto/property/property';
 import { Message } from '../../libs/enums/common.enum';
 import { PropertyInput } from '../../libs/dto/property/property.input';
 import { MemberService } from '../member/member.service';
+import { PropertyStatus } from '../../libs/enums/property.enum';
+import { T, StatisticModifier } from '../../libs/types/common';
+import { ViewService } from '../view/view.service';
+import { ViewGroup } from '../../libs/enums/view.enum';
 
 @Injectable()
 export class PropertyService {
-  constructor(@InjectModel("Property") private readonly propertyModel: Model<Property>, private memberService: MemberService) { }
+  constructor(@InjectModel("Property") private readonly propertyModel: Model<Property>,
+    private memberService: MemberService,
+    private viewService: ViewService) { }
 
   public async createProperty(input: PropertyInput): Promise<Property> {
     try {
@@ -24,5 +30,39 @@ export class PropertyService {
       console.log("Error, Service.model", err)
       throw new BadRequestException(Message.CREATE_FAILED)
     }
+  }
+
+  public async getProperty(memberId: ObjectId, propertyId: ObjectId): Promise<Property> {
+    const search: T = {
+      _id: propertyId,
+      propertyStatus: PropertyStatus.ACTIVE,
+    };
+    //@ts-ignore
+    const targetProperty: Property = await this.propertyModel.findOne(search).lean().exec();
+    if (!targetProperty) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
+
+    if (memberId) {
+      const viewInput = { memberId: memberId, viewRefId: propertyId, viewGroup: ViewGroup.PROPERTY };
+      const newView = await this.viewService.recordView(viewInput);
+      if (newView) {
+        await this.propertyStatsEditor({ _id: propertyId, targetKey: "propertyViews", modifier: 1 });
+        targetProperty.propertyViews++;
+      }
+
+      //meliked
+    }
+    //@ts-ignore
+    targetProperty.memberData = await this.memberService.getMember(null, targetProperty.memberId);
+    return targetProperty
+  }
+
+  public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
+    const { _id, targetKey, modifier } = input;
+    //@ts-ignore
+    return await this.propertyModel.findOneAndUpdate(
+      _id,
+      { $inc: { [targetKey]: modifier } },
+      { new: true }
+    ).exec()
   }
 }
