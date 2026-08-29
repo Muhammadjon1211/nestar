@@ -74,7 +74,7 @@ export class MemberService {
       }
     };
     const targetMember = await this.memberModel.findOne(search).lean().exec()
-    if (!targetMember) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
+    if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     if (memberId) {
       const viewInput: ViewInput = { memberId: memberId, viewRefId: targetId, viewGroup: ViewGroup.MEMBER }
@@ -104,7 +104,7 @@ export class MemberService {
         }
       }
     ])
-    if (!result.length) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
+    if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0]
   }
@@ -128,7 +128,7 @@ export class MemberService {
         },
       },
     ])
-    if (!result.length) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
+    if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0]
   }
