@@ -1,7 +1,65 @@
-import { Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { BoardArticleService } from './board-article.service';
+import { UseGuards } from '@nestjs/common';
+import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { BoardArticleInput, BoardArticlesInquiry } from '../../libs/dto/board-article/board-article.input';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
+import { ObjectId } from 'mongoose';
+import { WithoutGuard } from '../auth/guards/without.guard';
+import { shapeIntoMongoObjectId } from '../../libs/config';
+import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
 
 @Resolver()
 export class BoardArticleResolver {
   constructor(private readonly boardArticleService: BoardArticleService) { }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => BoardArticle)
+  public async createBoardArticle(
+    @Args('input') input: BoardArticleInput,
+    //@ts-ignore
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Mutation createBoardArticle');
+    return await this.boardArticleService.createBoardArticle(memberId, input);
+  }
+
+  @UseGuards(WithoutGuard)
+  //@ts-ignore
+  @Query((returns) => BoardArticle)
+  public async getBoardArticle(
+    @Args('articleId') input: string,
+    //@ts-ignore
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Query: getProperty');
+
+    const articleId = shapeIntoMongoObjectId(input); //string to mongoobject id
+    return await this.boardArticleService.getBoardArticle(memberId, articleId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => BoardArticle)
+  public async updateBoardArticle(
+    @Args('input') input: BoardArticleUpdate,
+    //@ts-ignore
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Mutation: updateBoardArticle');
+    input._id = shapeIntoMongoObjectId(input._id);
+    return await this.boardArticleService.updateBoardArticle(memberId, input);
+  }
+
+  @UseGuards(WithoutGuard)
+  @Query(() => BoardArticles)
+  public async getBoardArticles(
+    @Args('input') input: BoardArticlesInquiry,
+    //@ts-ignore
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticles> {
+    console.log('Query: getBoardArticles');
+
+    return await this.boardArticleService.getBoardArticles(memberId, input);
+  }
 }
