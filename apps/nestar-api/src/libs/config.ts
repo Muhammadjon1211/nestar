@@ -17,6 +17,8 @@ export const availablePropertySorts = [
 
 export const availableBoardArticlesSorts = ["createdAt", "updatedAt", "articleLikes", "articleViews"];
 
+export const availableCommentSorts = ["createdAt", "updatedAt"]
+
 // IMAGE CONFIGURATION
 export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 export const validImageExtensions = ['.png', '.jpg', '.jpeg'];
