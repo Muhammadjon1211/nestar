@@ -14,6 +14,7 @@ import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeService } from '../like/like.service';
+import { Like } from '../../libs/dto/like/like';
 
 @Injectable()
 export class MemberService {
@@ -88,6 +89,11 @@ export class MemberService {
         await this.memberModel.findByIdAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec();
         targetMember.memberViews++;
       }
+
+      const likeInput = { memberId: memberId, likeRefId: targetId, likeGroup: LikeGroup.MEMBER }
+      //@ts-ignore
+      targetMember.meLiked = await this.likeService.checkLikeExistance(likeInput)
+
     }
     return targetMember;
   }
