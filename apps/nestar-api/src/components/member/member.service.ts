@@ -126,7 +126,6 @@ export class MemberService {
       likeGroup: LikeGroup.MEMBER
     };
 
-    //TOGGLE like iva likeservice module
     const modifier: number = await this.likeService.toggleLike(input);
     const result = await this.memberStatsEditor({ _id: likeRefId, targetKey: 'memberLikes', modifier: modifier })
     if (!result) throw new InternalServerErrorException(Message.SOMETHING__WENT_WRONG);
