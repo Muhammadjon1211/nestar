@@ -150,7 +150,7 @@ export class BoardArticleService {
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
 
-              lookupMember,
+              lookupMember, //Articlemizini hosil qilgan memberimizni datasini memberdataga joylayabmiz ekan
               {
                 $unwind: '$memberData',
               },
@@ -161,7 +161,7 @@ export class BoardArticleService {
       ])
       .exec();
 
-    if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0];
   }
