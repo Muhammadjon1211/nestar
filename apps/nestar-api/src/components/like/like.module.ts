@@ -1,8 +1,19 @@
 import { Module } from '@nestjs/common';
-import { LikeResolver } from './like.resolver';
 import { LikeService } from './like.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import LikeSchema from '../../schemas/Like.model';
+import { MemberService } from '../member/member.service';
 
 @Module({
-  providers: [LikeResolver, LikeService]
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: "Like",
+        schema: LikeSchema,
+      },
+    ]),
+  ],
+  providers: [LikeService],
+  exports: [LikeService]
 })
-export class LikeModule {}
+export class LikeModule { }
