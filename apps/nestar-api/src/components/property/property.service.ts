@@ -11,7 +11,7 @@ import { ViewService } from '../view/view.service';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import moment from "moment";
-import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -56,12 +56,10 @@ export class PropertyService {
         targetProperty.propertyViews++;
       }
 
-      //meliked
+      const likeInput = { memberId: memberId, likeRefId: propertyId, likeGroup: LikeGroup.PROPERTY }
+      //@ts-ignore
+      targetProperty.meLiked = await this.likeService.checkLikeExistance(likeInput)
     }
-
-    const likeInput = { memberId: memberId, likeRefId: propertyId, likeGroup: LikeGroup.PROPERTY }
-    //@ts-ignore
-    targetProperty.meLiked = await this.likeService.checkLikeExistance(likeInput)
     //@ts-ignore
     targetProperty.memberData = await this.memberService.getMember(null, targetProperty.memberId);
     return targetProperty
@@ -118,6 +116,7 @@ export class PropertyService {
           list: [
             { $skip: (input.page - 1) * input.limit },
             { $limit: input.limit },
+            lookupAuthMemberLiked(memberId),
             lookupMember,
             { $unwind: '$memberData' }
           ],
