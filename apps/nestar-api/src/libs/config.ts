@@ -45,30 +45,30 @@ export const shapeIntoMongoObjectId = (target: any) => {
 export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = "$_id") => {
   return {
     $lookup: {
-      from: "likes",
+      from: "likes", // qaysi collectiondan
       let: {
-        localLikeRefId: targetRefId,
-        localMemberId: memberId,
+        localLikeRefId: targetRefId, //"$_id"
+        localMemberId: memberId, // hozirgi memberId
         localMyFavorite: true,
       },
-      pipeline: [
+      pipeline: [ //array qabul qiladi
         {
-          $match: {
+          $match: { //bir nechta narsani match qilayotkan ekanmiz
             $expr: {
               $and: [{ $eq: ["$likeRefId", "$$localLikeRefId"] }, { $eq: ["$memberId", "$$localMemberId"] }],
             },
           },
         },
         {
-          $project: {
-            _id: 0,
-            memberId: 1,
-            likeRefId: 1,
-            myFavorite: "$$localMyFavorite",
+          $project: { //projection
+            _id: 0, //id olib bermaydi
+            memberId: 1, //id olib beradi, kerak
+            likeRefId: 1, //likeref id kerak
+            myFavorite: "$$localMyFavorite", //togri ishjlasa shuni qiymat qilib beryabmiz
           },
         },
       ],
-      as: "meLiked"
+      as: "meLiked" // save as meLiked
     },
   }
 };

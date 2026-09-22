@@ -55,10 +55,10 @@ export class LikeService {
           as: "favoriteProperty",
         },
       },
-      { $unwind: "$favoriteProperty" },
+      { $unwind: "$favoriteProperty" }, // shuergacha datani array shaklida qaytaradi va object qaytaradi bizidi logdi.
       {
-        $facet: {
-          list: [{ $skip: (page - 1) * limit }, { $limit: limit }, lookupFavorite,
+        $facet: { //properties shaklida malumotlarni olish, list ichiga joylashtirib
+          list: [{ $skip: (page - 1) * limit }, { $limit: limit }, lookupFavorite, //list object array qaytaradi
           { $unwind: "$favoriteProperty.memberData" },
           ],
           metaCounter: [{ $count: "total" }]
@@ -66,7 +66,7 @@ export class LikeService {
       }
     ])
       .exec()
-    const result: Properties = { list: [], metaCounter: data[0].metaCounter }
+    const result: Properties = { list: [], metaCounter: data[0].metaCounter } //metacounter chiqarib beryabti
     result.list = data[0].list.map((ele) => ele.favoriteProperty)
     return result;
   }

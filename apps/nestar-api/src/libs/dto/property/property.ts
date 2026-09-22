@@ -72,6 +72,9 @@ export class Property {
   @Field(() => Date, { nullable: true })
   deletedAt?: Date;
 
+  @Field(() => Date, { nullable: true })
+  constructedAt?: Date;
+
   @Field(() => Date)
   createdAt: Date;
 
