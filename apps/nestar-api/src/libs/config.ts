@@ -100,7 +100,7 @@ export const lookupAuthMemberFollowed = (input: LookupAuthMemberFollowed) => {
             _id: 0,
             followerId: 1,
             followingId: 1,
-            myFavorite: "$$localMyFavorite",
+            myFollowing: "$$localMyFavorite",
           },
         },
       ],

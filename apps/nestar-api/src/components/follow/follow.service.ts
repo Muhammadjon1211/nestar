@@ -37,6 +37,7 @@ export class FollowService {
         followerId: followerId,
       });
     } catch (err) {
+      //@ts-ignore
       console.log('Error, Service.model:', err.message);
       throw new BadRequestException(Message.CREATE_FAILED,);
     }
@@ -48,7 +49,7 @@ export class FollowService {
 
     if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-    const result = await this.followModel.findOneAndDelete({ followingId: followingId, followerId: followerId, });
+    const result = await this.followModel.findOneAndDelete({ followingId: followingId, followerId: followerId, }).exec();
 
     if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 

@@ -8,7 +8,7 @@ import { CommentInput, CommentsInquiry } from '../../libs/dto/comment/comment.in
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { CommentGroup, CommentStatus } from '../../libs/enums/comment.enum';
 import { CommentUpdate } from '../../libs/dto/comment/comment.update';
-import { Comments } from '../../libs/dto/comment/comment';
+import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { T } from '../../libs/types/common';
 import { lookupMember } from '../../libs/config';
 
@@ -21,11 +21,12 @@ export class CommentService {
 
   public async createComment(memberId: ObjectId, input: CommentInput): Promise<Comment> {
     input.memberId = memberId;
-    let result = null;
+    let result: Comment | null = null;
 
     try {
-      const result = await this.commentModel.create(input);
+      result = await this.commentModel.create(input);
     } catch (err) {
+      //@ts-ignore
       console.log('Error, Service.model:', err.message);
       throw new BadRequestException(Message.CREATE_FAILED);
     }
@@ -62,7 +63,7 @@ export class CommentService {
   public async updateComment(memberId: ObjectId, input: CommentUpdate,): Promise<Comment> {
     const { _id } = input;
     const result = await this.commentModel.findOneAndUpdate(
-      { _id, memberId, commentStatus: CommentStatus.ACTIVE }, input, { new: true, });
+      { _id, memberId, commentStatus: CommentStatus.ACTIVE }, input, { new: true, }).exec();
     if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
     return result;
@@ -89,7 +90,7 @@ export class CommentService {
           metaCounter: [{ $count: 'total', },],
         },
       },
-    ]);
+    ]).exec();
 
     if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND,);
 
@@ -97,7 +98,7 @@ export class CommentService {
   }
 
   public async removeCommentByAdmin(input: ObjectId): Promise<Comment> {
-    const result = await this.commentModel.findByIdAndDelete(input);
+    const result = await this.commentModel.findByIdAndDelete(input).exec()
     if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
     return result;
   }
